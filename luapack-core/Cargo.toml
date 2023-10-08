@@ -1,0 +1,14 @@
+[package]
+name = "luapack-core"
+version = "0.1.0"
+authors = ["github.com/willtrnr"]
+edition = "2021"
+description = "Luapack core library."
+readme = "README.md"
+repository = "https://github.com/willtrnr/reversynced"
+license = "MIT"
+
+[dependencies]
+full_moon = { version = "0.18.1", default_features = false, features = ["lua54"] }
+log = "0.4"
+thiserror = "1.0"

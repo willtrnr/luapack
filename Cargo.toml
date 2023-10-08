@@ -1,0 +1,6 @@
+[workspace]
+members = [
+  "luapack",
+  "luapack-core",
+]
+resolver = "2"

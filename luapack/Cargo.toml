@@ -1,0 +1,16 @@
+[package]
+name = "luapack"
+version = "0.1.0"
+authors = ["github.com/willtrnr"]
+edition = "2021"
+description = "Equivalent of webpack for Lua."
+readme = "README.md"
+repository = "https://github.com/willtrnr/luapack"
+license = "MIT"
+
+[dependencies]
+luapack-core = { path = "../luapack-core" }
+
+clap = { version = "4.4", features = ["derive"] }
+env_logger = "0.10"
+eyre = "0.6"
