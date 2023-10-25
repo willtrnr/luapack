@@ -11,6 +11,7 @@ license = "MIT"
 [dependencies]
 luapack-core = { path = "../luapack-core" }
 
-clap = { version = "4.4", features = ["derive"] }
+clap = { version = "4.4", features = ["derive", "env"] }
+clap-verbosity-flag = "2.0"
 env_logger = "0.10"
 eyre = "0.6"

@@ -9,6 +9,14 @@ repository = "https://github.com/willtrnr/reversynced"
 license = "MIT"
 
 [dependencies]
-full_moon = { version = "0.18.1", default_features = false, features = ["lua54"] }
+derive_builder = "0.12"
 log = "0.4"
 thiserror = "1.0"
+
+[dependencies.full_moon]
+version = "0.18.1"
+default_features = false
+features = [
+  "lua54",
+  "roblox",
+]
