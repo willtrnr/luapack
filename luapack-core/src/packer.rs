@@ -178,7 +178,16 @@ impl Packer {
 
         let ast = packer.visit_ast(entry.load()?);
 
-        while let Some(modname) = unresolved.pop_first() {
+        'upper: while let Some(modname) = unresolved.pop_first() {
+            for k in self.excludes.iter() {
+                if k == &modname || (k.ends_with('.') && modname.starts_with(k)) {
+                    log::info!("Ignoring excluded module: {}", modname);
+                    continue 'upper;
+                } else if k > &modname {
+                    break;
+                }
+            }
+
             let mut packer = PackerVisitor::new(|args: Vec<_>| {
                 if let Some(Some(RuntimeValue::String(n))) = args.first() {
                     if !resolved.contains_key(n) {
@@ -187,12 +196,17 @@ impl Packer {
                 }
             });
 
-            if self.excludes.contains(&modname) {
-                log::info!("Ignoring excluded module: {}", modname);
-            } else if let Some(preload) = self.preload.get(&modname) {
-                log::info!("Using preloaded module: {}", modname);
-                resolved.insert(modname, packer.visit_ast(preload.clone()));
-            } else if let Some((loader, path)) = self.searchers.search(&modname) {
+            for (k, p) in self.preload.iter() {
+                if k == &modname || (k.ends_with('.') && modname.starts_with(k)) {
+                    log::info!("Using preloaded module: {}", modname);
+                    resolved.insert(modname, packer.visit_ast(p.clone()));
+                    continue 'upper;
+                } else if k > &modname {
+                    break;
+                }
+            }
+
+            if let Some((loader, path)) = self.searchers.search(&modname) {
                 log::info!("Resolved module: {} at {}", modname, path.display());
                 resolved.insert(modname, packer.visit_ast(loader.load()?));
             } else {
