@@ -126,6 +126,7 @@ fn wrap_module(ast: ast::Ast) -> ast::Value {
 
 pub struct Packer {
     searchers: Vec<Box<dyn Searcher + 'static>>,
+    excludes: BTreeSet<String>,
     preload: BTreeMap<String, Ast>,
     prelude: Ast,
 }
@@ -140,8 +141,28 @@ impl Packer {
         self
     }
 
+    pub fn add_exclude<S: Into<String>>(mut self, name: S) -> Self {
+        self.excludes.insert(name.into());
+        self
+    }
+
+    pub fn add_excludes<S: Into<String>, I: IntoIterator<Item = S>>(mut self, names: I) -> Self {
+        self.excludes.extend(names.into_iter().map(Into::into));
+        self
+    }
+
     pub fn add_preload<S: Into<String>, L: Loader>(mut self, name: S, loader: L) -> Result<Self> {
         self.preload.insert(name.into(), loader.load()?);
+        Ok(self)
+    }
+
+    pub fn add_preloads<S: Into<String>, L: Loader, I: IntoIterator<Item = (S, L)>>(
+        mut self,
+        modules: I,
+    ) -> Result<Self> {
+        for (n, l) in modules {
+            self = self.add_preload(n, l)?;
+        }
         Ok(self)
     }
 
@@ -166,7 +187,9 @@ impl Packer {
                 }
             });
 
-            if let Some(preload) = self.preload.get(&modname) {
+            if self.excludes.contains(&modname) {
+                log::info!("Ignoring excluded module: {}", modname);
+            } else if let Some(preload) = self.preload.get(&modname) {
                 log::info!("Using preloaded module: {}", modname);
                 resolved.insert(modname, packer.visit_ast(preload.clone()));
             } else if let Some((loader, path)) = self.searchers.search(&modname) {
@@ -229,6 +252,7 @@ impl Default for Packer {
     fn default() -> Self {
         Self {
             searchers: Default::default(),
+            excludes: Default::default(),
             preload: Default::default(),
             prelude: full_moon::parse(PRELUDE).unwrap(),
         }
@@ -325,6 +349,26 @@ where
 
     fn visit_function_call_end(&mut self, node: ast::FunctionCall) -> ast::FunctionCall {
         let node = self.vm.visit_function_call_end(node);
+        self.in_require_call = false;
+        node
+    }
+
+    fn visit_var_expression(&mut self, node: ast::VarExpression) -> ast::VarExpression {
+        let node = self.vm.visit_var_expression(node);
+        if let ast::Prefix::Name(n) = node.prefix() {
+            if let TokenType::Identifier { identifier } = n.token_type() {
+                if identifier.as_str() == "require" {
+                    if let Some(ast::Suffix::Call(_)) = node.suffixes().next() {
+                        self.in_require_call = true;
+                    }
+                }
+            }
+        }
+        node
+    }
+
+    fn visit_call_end(&mut self, node: ast::Call) -> ast::Call {
+        let node = self.vm.visit_call_end(node);
         self.in_require_call = false;
         node
     }

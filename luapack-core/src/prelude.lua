@@ -16,7 +16,7 @@ local require<const> = function(modname)
    if mod ~= nil then return mod end
 
    local loader = __luapack.preload[modname]
-   if load ~= nil then
+   if loader ~= nil then
       mod = loader(modname, ":preload:")
       if mod == nil then
          mod = __luapack.loaded[modname]
@@ -26,5 +26,5 @@ local require<const> = function(modname)
       return mod
    end
 
-   error("module '" .. modname .. "' not found")
+   error("module '" .. modname .. "' not found", 2)
 end
