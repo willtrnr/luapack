@@ -1,17 +1,6 @@
-local __luapack<const> = {preload = {}, loaded = {}}
+local __luapack = {preload = {}, loaded = {}}
 
-setmetatable(__luapack.preload, {
-   __index = function(_t, k)
-      local v = _G[k]
-      if v ~= nil then
-         return function() return v end
-      else
-         return nil
-      end
-   end
-})
-
-local require<const> = function(modname)
+local require = function(modname)
    local mod = __luapack.loaded[modname]
    if mod ~= nil then return mod end
 
