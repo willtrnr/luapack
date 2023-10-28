@@ -1,6 +1,6 @@
 local __luapack = {preload = {}, loaded = {}}
 
-local require = function(modname)
+local function require(modname)
    local mod = __luapack.loaded[modname]
    if mod ~= nil then return mod end
 
