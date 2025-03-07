@@ -1,22 +1,16 @@
 [package]
 name = "luapack-core"
-version = "0.1.0"
-authors = ["github.com/willtrnr"]
-edition = "2021"
-description = "Luapack core library."
-readme = "README.md"
-repository = "https://github.com/willtrnr/reversynced"
-license = "MIT"
+description = "Luapack - Core"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+readme.workspace = true
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
-derive_builder = "0.12"
-log = "0.4"
-thiserror = "1.0"
-
-[dependencies.full_moon]
-version = "0.18.1"
-default_features = false
-features = [
-  "lua54",
-  "roblox",
-]
+derive_builder = { workspace = true }
+full_moon = { workspace = true, features = ["lua54", "roblox"] }
+log = { workspace = true }
+thiserror = { workspace = true }

@@ -6,6 +6,9 @@ use std::{
     path::PathBuf,
 };
 
+#[global_allocator]
+static GLOBAL: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
 #[derive(Parser, Clone, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -40,6 +43,7 @@ pub fn main() -> eyre::Result<()> {
     let args = Args::parse();
 
     env_logger::builder()
+        .parse_env("LUAPACK_LOG")
         .filter_level(args.verbose.log_level_filter())
         .init();
 
@@ -55,14 +59,12 @@ pub fn main() -> eyre::Result<()> {
 
     let result = packer.pack_to_string(args.entry.as_path())?;
 
-    if let Some(p) = args.output {
-        if p.as_os_str() != "-" {
-            BufWriter::new(File::create(p)?).write_all(result.as_bytes())?;
-            return Ok(());
-        }
-    }
+    let mut output: Box<dyn Write> = match args.output {
+        Some(p) if p.as_os_str() != "-" => Box::new(BufWriter::new(File::create(p)?)),
+        _ => Box::new(std::io::stdout()),
+    };
 
-    std::io::stdout().write_all(result.as_bytes())?;
+    output.write_all(result.as_bytes())?;
 
     Ok(())
 }

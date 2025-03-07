@@ -1,17 +1,19 @@
 [package]
 name = "luapack"
-version = "0.1.0"
-authors = ["github.com/willtrnr"]
-edition = "2021"
-description = "Equivalent of webpack for Lua."
-readme = "README.md"
-repository = "https://github.com/willtrnr/luapack"
-license = "MIT"
+description = "Webpack, but for Lua."
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+readme.workspace = true
+repository.workspace = true
+license.workspace = true
 
 [dependencies]
 luapack-core = { path = "../luapack-core" }
 
-clap = { version = "4.4", features = ["derive", "env"] }
-clap-verbosity-flag = "2.0"
-env_logger = "0.10"
-eyre = "0.6"
+clap = { workspace = true, features = ["derive", "env"] }
+clap-verbosity-flag = { workspace = true }
+env_logger = { workspace = true }
+eyre = { workspace = true }
+mimalloc = { workspace = true }
